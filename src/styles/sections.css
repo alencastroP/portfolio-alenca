@@ -1,0 +1,720 @@
+/* ------------------------------------------------------------------ *
+ * Tipografia editorial, hero, galeria (bento), stack e contato
+ * ------------------------------------------------------------------ */
+
+/* Rótulo de seção em mono — índice, régua e nome. A voz de quem lê código. */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-accent-300);
+}
+
+.eyebrow::before {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    color-mix(in srgb, var(--color-accent) 10%, transparent)
+  );
+}
+
+.accent {
+  color: var(--color-accent);
+}
+
+/* Destaque editorial nos títulos: serifa itálica + gradiente de assinatura.
+   O contraste de família é o que tira o título do "sans genérico". O
+   `box-decoration-break` repinta o gradiente em cada linha quando quebra. */
+:is(.hero__title, .gallery__title, .journey__title, .contact__title) .accent {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.1em;
+  letter-spacing: -0.01em;
+  padding-inline-end: 0.08em;
+  background: var(--grad-signature);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  animation: sheen 12s ease-in-out infinite;
+}
+
+/* --- Hero --------------------------------------------------------- */
+
+/* Ocupa a primeira dobra: o texto em cima, os números ancorados embaixo. */
+.section--hero {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100svh - var(--nav-h));
+  padding-top: clamp(52px, 10vh, 118px);
+  padding-bottom: clamp(28px, 5vh, 56px);
+}
+
+/* No desktop o texto fica na coluna da esquerda; a direita é das capturas
+   (`showcase.css` parte desta mesma conta para não invadir o texto). */
+.hero__inner {
+  max-width: min(700px, 62%);
+}
+
+/* Mesmo corte da vitrine: abaixo dele ela desce para o fluxo. */
+@media (max-width: 1024px) {
+  .hero__inner {
+    max-width: 100%;
+  }
+}
+
+.hero__eyebrow {
+  margin-bottom: 30px;
+}
+
+.hero__title {
+  text-wrap: balance;
+  font-size: clamp(38px, 5.4vw, 70px);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  margin: 0;
+}
+
+/* Subtítulo de vitrine: uma frase, maior e mais apagada que o título — a
+   hierarquia vem do contraste de tamanho, não da quantidade de texto. */
+.hero__lead {
+  text-wrap: pretty;
+  font-size: clamp(18px, 1.7vw, 21px);
+  line-height: 1.5;
+  max-width: 38ch;
+  margin-top: 32px;
+  color: color-mix(in srgb, var(--color-text) 66%, transparent);
+}
+
+.hero__actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 44px;
+}
+
+.hero__footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: auto;
+  padding-top: clamp(48px, 8vh, 84px);
+}
+
+.hero__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(24px, 4.5vw, 56px);
+  margin: 0;
+}
+
+/* `dt` antes do `dd` no DOM (semântica de lista de descrição); o
+   `column-reverse` põe o número em cima. */
+.hero__stat {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+}
+
+.hero__stat dd {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 38px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, var(--color-text) 30%, var(--color-accent-300));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero__stat dt {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-neutral-500);
+}
+
+.hero__scroll {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-neutral-400);
+  transition: color 0.25s;
+}
+
+.hero__scroll:hover {
+  color: var(--color-accent-200);
+}
+
+.hero__scroll-line {
+  position: relative;
+  width: 1px;
+  height: 44px;
+  overflow: hidden;
+  background: var(--color-neutral-800);
+}
+
+.hero__scroll-line::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 45%;
+  background: linear-gradient(to bottom, transparent, var(--color-accent-200));
+  animation: scrollCue 2.2s var(--ease-out-expo) infinite;
+}
+
+@keyframes scrollCue {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(240%);
+  }
+}
+
+@media (max-width: 640px) {
+  .hero__scroll {
+    display: none;
+  }
+}
+
+/* --- Galeria ------------------------------------------------------ */
+
+.section--gallery {
+  padding-block: var(--section-pad);
+}
+
+.gallery__title {
+  text-wrap: balance;
+  font-size: clamp(34px, 5vw, 64px);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  margin: 18px 0 0;
+  max-width: 20ch;
+}
+
+.gallery__lead {
+  text-wrap: pretty;
+  font-size: clamp(17px, 1.5vw, 20px);
+  line-height: 1.5;
+  max-width: 44ch;
+  margin-top: 24px;
+  color: color-mix(in srgb, var(--color-text) 62%, transparent);
+}
+
+/* Bento: o projeto herói ocupa 2×2 e os outros cinco fecham o retângulo
+   (duas células na coluna da direita, três na linha de baixo). */
+.gallery__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(18px, 2.4vw, 32px);
+  margin-top: clamp(64px, 8vw, 112px);
+  list-style: none;
+  padding: 0;
+}
+
+/* A perspectiva vive no item da grade para que a inclinação do card
+   aconteça em 3D real, não como uma deformação achatada. */
+.gallery__item {
+  display: flex;
+  perspective: 1100px;
+}
+
+.gallery__item--hero {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+/* Duas colunas: o herói vira uma faixa e o último card fecha a linha. */
+@media (max-width: 1020px) {
+  .gallery__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gallery__item--hero {
+    grid-row: span 1;
+  }
+
+  .gallery__item:last-child {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .gallery__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gallery__item--hero,
+  .gallery__item:last-child {
+    grid-column: auto;
+  }
+}
+
+/* --- Card de projeto ---------------------------------------------- */
+
+.project-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--radius-lg);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.04),
+    0 18px 40px -28px rgb(0 0 0 / 0.9);
+  transform-style: preserve-3d;
+  transition:
+    transform 0.3s var(--ease-out-expo),
+    border-color 0.3s,
+    box-shadow 0.35s,
+    opacity 0.3s;
+}
+
+/* `--tilt-*` e `--px/--py` são alimentados por usePointerSpotlight. */
+.project-card:hover,
+.project-card:focus-visible {
+  transform: translateY(-6px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  border-color: color-mix(in srgb, var(--color-accent-500) 45%, transparent);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Borda que acende sob o ponteiro: um gradiente radial pintado só no anel
+   de 1px — a máscara exclui a caixa de conteúdo e sobra a borda. */
+.project-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    300px circle at var(--px, 50%) var(--py, 0%),
+    var(--color-accent-200),
+    color-mix(in srgb, var(--color-orchid) 55%, transparent) 38%,
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+
+/* Brilho de superfície que segue o ponteiro. */
+.project-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s;
+  background: radial-gradient(
+    320px circle at var(--px, 50%) var(--py, 0%),
+    color-mix(in srgb, var(--color-accent) 14%, transparent),
+    transparent 62%
+  );
+}
+
+.project-card:hover::before,
+.project-card:focus-visible::before,
+.project-card:hover::after,
+.project-card:focus-visible::after {
+  opacity: 1;
+}
+
+/* `:has()` — apontar um card faz os vizinhos recuarem. */
+@media (hover: hover) {
+  .gallery__grid:has(.gallery__item:hover) .project-card {
+    opacity: 0.55;
+  }
+
+  .gallery__grid .gallery__item:hover .project-card {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery__grid:has(.gallery__item:hover) .project-card {
+    opacity: 1;
+  }
+}
+
+.project-card:hover .project-card__title,
+.project-card:focus-visible .project-card__title {
+  color: var(--color-accent-200);
+}
+
+.project-card:hover .project-card__arrow,
+.project-card:focus-visible .project-card__arrow {
+  opacity: 1;
+  transform: none;
+}
+
+.project-card:hover .project-card__hint,
+.project-card:focus-visible .project-card__hint {
+  opacity: 1;
+  transform: none;
+}
+
+.project-card:hover .thumb__body,
+.project-card:focus-visible .thumb__body {
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* Corpo enxuto: nome, uma linha e — só no herói — o número de impacto. */
+.project-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 18px 20px 22px;
+}
+
+.project-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.project-card__title {
+  font-family: var(--font-heading);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  transition: color 0.25s;
+}
+
+.project-card__short {
+  text-wrap: pretty;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 6px 0 0;
+  color: color-mix(in srgb, var(--color-text) 58%, transparent);
+}
+
+.project-card__arrow {
+  flex: none;
+  color: var(--color-accent);
+  font-size: 16px;
+  opacity: 0.4;
+  transform: translateX(-5px);
+  transition:
+    opacity 0.25s,
+    transform 0.25s;
+}
+
+/* Card herói: a capa cresce e ocupa o que sobra da altura de duas linhas. */
+.project-card--hero .thumb {
+  flex: 1;
+  height: auto;
+  min-height: 240px;
+  padding: 20px 22px;
+}
+
+.project-card--hero .thumb__body {
+  zoom: 1.5;
+}
+
+.project-card--hero .project-card__body {
+  flex: 0 0 auto;
+  padding: 22px 24px 26px;
+}
+
+.project-card--hero .project-card__title {
+  font-size: clamp(22px, 2.2vw, 28px);
+}
+
+.project-card--hero .project-card__short {
+  font-size: 15px;
+  max-width: 54ch;
+}
+
+/* O número solto, sem caixa: o tamanho já basta para ele liderar. */
+.project-card__impact {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 20px;
+}
+
+.project-card__impact strong {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  background: var(--grad-signature);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.project-card__impact span {
+  font-size: 13px;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+}
+
+@media (max-width: 1020px) {
+  .project-card--hero .thumb {
+    min-height: 200px;
+  }
+
+  .project-card--hero .thumb__body {
+    zoom: 1.25;
+  }
+}
+
+@media (max-width: 640px) {
+  .project-card--hero .thumb {
+    min-height: 150px;
+  }
+
+  .project-card--hero .thumb__body {
+    zoom: 1;
+  }
+}
+
+/* --- Miniatura em wireframe ---------------------------------------- */
+
+.thumb {
+  position: relative;
+  height: 142px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-neutral-700) 45%, transparent);
+  background:
+    radial-gradient(
+      120% 90% at 100% 0%,
+      color-mix(in srgb, var(--color-accent-800) 40%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(circle, rgb(255 255 255 / 0.05) 1px, transparent 1.2px) 0 0 / 14px 14px,
+    linear-gradient(160deg, var(--color-neutral-900), #0d0a17);
+}
+
+.thumb__body {
+  transition: transform 0.5s var(--ease-out-expo);
+}
+
+.thumb__chrome {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.thumb__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-neutral-600);
+  display: block;
+}
+
+.thumb__dot--dim {
+  background: var(--color-neutral-700);
+}
+
+.thumb__url {
+  height: 6px;
+  width: 52px;
+  border-radius: 3px;
+  background: var(--color-neutral-700);
+  display: block;
+  margin-left: 5px;
+}
+
+.project-card__hint {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-accent-600) 55%, transparent);
+  background: color-mix(in srgb, var(--color-bg) 78%, transparent);
+  color: var(--color-accent-200);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity 0.28s,
+    transform 0.35s var(--ease-out-expo);
+}
+
+/* --- Stack e prática ---------------------------------------------- */
+
+.section--stack {
+  padding-block: var(--section-pad);
+}
+
+.stack__statement {
+  font-family: var(--font-heading);
+  font-size: clamp(30px, 4.2vw, 54px);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  max-width: 20ch;
+  margin-top: 18px;
+  text-wrap: balance;
+}
+
+/* O conteúdo desta seção vive em stack.css. */
+
+/* O conteúdo da seção Sobre vive em journey.css. */
+
+/* --- Contato ------------------------------------------------------ */
+
+.section--contact {
+  padding-block: var(--section-pad);
+}
+
+.contact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(32px, 5.5vw, 64px);
+  align-items: center;
+}
+
+@media (min-width: 960px) {
+  .contact {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  }
+}
+
+.contact__title {
+  text-wrap: balance;
+  font-size: clamp(40px, 6vw, 80px);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  margin: 18px 0 0;
+}
+
+.contact__lead {
+  text-wrap: pretty;
+  font-size: clamp(17px, 1.5vw, 20px);
+  line-height: 1.5;
+  max-width: 40ch;
+  margin-top: 28px;
+  color: color-mix(in srgb, var(--color-text) 62%, transparent);
+}
+
+.contact__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 38px;
+}
+
+.contact__copy[data-copied] {
+  border-color: #7ef0b2;
+  color: #c8fbe0;
+  background: color-mix(in srgb, #7ef0b2 12%, transparent);
+}
+
+.contact__links {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  margin-left: -12px;
+}
+
+/* Num telefone o e-mail inteiro não cabe numa pílula de uma linha. */
+@media (max-width: 420px) {
+  .contact__actions .btn {
+    white-space: normal;
+    word-break: break-all;
+  }
+}
+
+/* Palco do globo: um quadrado com halo, e a etiqueta de lugar por cima. */
+.contact__stage {
+  position: relative;
+  width: min(100%, 440px);
+  aspect-ratio: 1;
+  margin-inline: auto;
+}
+
+.contact__stage::before {
+  content: '';
+  position: absolute;
+  inset: 10%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-violet) 32%, transparent),
+    transparent
+  );
+  filter: blur(30px);
+}
+
+.contact__place {
+  position: absolute;
+  left: 50%;
+  bottom: 3%;
+  translate: -50% 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-neutral-600) 55%, transparent);
+  background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.contact__place-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-lilac);
+  box-shadow: 0 0 10px 2px color-mix(in srgb, var(--color-accent) 70%, transparent);
+}
+
+.contact__time {
+  font-family: var(--font-mono);
+  color: var(--color-neutral-400);
+  font-variant-numeric: tabular-nums;
+}

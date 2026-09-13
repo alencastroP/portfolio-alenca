@@ -1,0 +1,612 @@
+/* ------------------------------------------------------------------ *
+ * Folha de case (modal) + moldura do preview
+ * ------------------------------------------------------------------ */
+
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: color-mix(in srgb, var(--color-bg) 78%, transparent);
+  backdrop-filter: blur(10px) saturate(130%);
+  -webkit-backdrop-filter: blur(10px) saturate(130%);
+  animation: fadeIn 0.25s ease;
+  padding: clamp(12px, 3vh, 40px) clamp(12px, 3vw, 32px);
+}
+
+/* Saída em CSS para quem não tem View Transitions: a folha desce e some. */
+.sheet.is-closing {
+  animation: fadeOut 0.28s ease forwards;
+  pointer-events: none;
+}
+
+.sheet.is-closing .sheet__panel {
+  animation: sheetOut 0.28s var(--ease-out-expo) forwards;
+}
+
+.sheet__scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.sheet__panel {
+  position: relative;
+  width: 100%;
+  max-width: 1060px;
+  padding: 0;
+  overflow: hidden;
+  animation: sheetIn 0.4s var(--ease-out-expo);
+}
+
+/* Halo que segue o ponteiro dentro da folha. As coordenadas vêm do
+   painel (herdadas por custom property), a pintura é toda do CSS. */
+.sheet__glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s;
+  background: radial-gradient(
+    560px circle at var(--px, 50%) var(--py, 0%),
+    color-mix(in srgb, var(--color-accent) 10%, transparent),
+    transparent 66%
+  );
+}
+
+.sheet__panel:hover .sheet__glow {
+  opacity: 1;
+}
+
+.sheet__header,
+.sheet__body,
+.preview,
+.sheet__footer {
+  position: relative;
+  z-index: 1;
+}
+
+.sheet__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: clamp(20px, 3vw, 30px) clamp(20px, 3vw, 30px) 0;
+}
+
+.sheet__badges {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sheet__kicker {
+  font-size: 12px;
+  color: var(--color-accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sheet__period {
+  font-size: 12px;
+  color: var(--color-neutral-500);
+  font-variant-numeric: tabular-nums;
+}
+
+.sheet__title {
+  font-size: clamp(26px, 3.6vw, 40px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin: 12px 0 0;
+}
+
+/* A descrição que saiu do card da galeria abre o case, logo sob o título. */
+.sheet__lead {
+  text-wrap: pretty;
+  font-size: clamp(15px, 1.4vw, 17px);
+  line-height: 1.55;
+  max-width: 56ch;
+  margin-top: 10px;
+  color: color-mix(in srgb, var(--color-text) 66%, transparent);
+}
+
+.sheet__close {
+  flex: 0 0 auto;
+  font-size: 13px;
+}
+
+.sheet__body {
+  padding: clamp(18px, 2.4vw, 26px) clamp(20px, 3vw, 30px) 0;
+}
+
+.case-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: clamp(16px, 2.4vw, 30px);
+}
+
+.case-grid__label {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 10px;
+}
+
+.case-grid__text {
+  font-size: 14px;
+  line-height: 1.62;
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+}
+
+.case-grid__result {
+  border-left: 1px solid var(--color-neutral-800);
+  padding-left: clamp(16px, 2vw, 26px);
+}
+
+/* Em coluna única a régua vertical vira horizontal. */
+@media (max-width: 500px) {
+  .case-grid__result {
+    border-left: 0;
+    padding-left: 0;
+    border-top: 1px solid var(--color-neutral-800);
+    padding-top: 16px;
+  }
+}
+
+.case-grid__impact {
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-family: var(--font-heading);
+  color: var(--color-text);
+  /* Dígitos de largura fixa: o número conta sem empurrar o texto ao lado. */
+  font-variant-numeric: tabular-nums;
+  text-wrap: balance;
+}
+
+.case-grid__impact-label {
+  font-size: 12.5px;
+  line-height: 1.5;
+  margin-top: 10px;
+  color: color-mix(in srgb, var(--color-text) 60%, transparent);
+}
+
+.sheet__stack {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+
+/* --- Moldura do preview ------------------------------------------- */
+
+.preview {
+  margin: clamp(20px, 3vw, 28px) clamp(20px, 3vw, 30px) 0;
+}
+
+.preview__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.preview__label {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.preview__hint {
+  font-size: 12px;
+  color: var(--color-neutral-500);
+}
+
+.preview__window {
+  border: 1px solid var(--color-neutral-800);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-neutral-900);
+}
+
+.preview__chrome {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--color-neutral-800);
+  border-bottom: 1px solid var(--color-neutral-700);
+}
+
+.preview__chrome-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-neutral-600);
+  display: block;
+}
+
+.preview__url {
+  font-size: 11.5px;
+  color: var(--color-neutral-400);
+  margin-left: 6px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview__badge {
+  margin-left: auto;
+  flex: 0 0 auto;
+  font-size: 10.5px;
+}
+
+.preview__chrome-dot {
+  flex: 0 0 auto;
+}
+
+.preview__stage {
+  padding: clamp(14px, 2vw, 20px);
+  min-height: 330px;
+}
+
+/* O site ao vivo ocupa a moldura inteira — sem respiro artificial. */
+.preview__stage--live {
+  padding: 0;
+}
+
+/* --- Embed do site em produção ------------------------------------ */
+
+.live {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-neutral-900);
+}
+
+/* --- Barra de ferramentas do simulador ----------------------------- */
+
+.live__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  flex-wrap: wrap;
+  padding: 10px clamp(12px, 1.6vw, 16px);
+  border-bottom: 1px solid var(--color-neutral-800);
+  background: color-mix(in srgb, var(--color-neutral-800) 40%, transparent);
+}
+
+.live__devices {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, black 26%, transparent);
+  border: 1px solid var(--color-neutral-800);
+}
+
+.live__device {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  cursor: pointer;
+  font-size: 12.5px;
+  line-height: 1.1;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--color-neutral-400);
+  transition:
+    background 0.28s var(--ease-out-expo),
+    border-color 0.28s,
+    color 0.28s;
+}
+
+.live__device:hover {
+  color: var(--color-neutral-200);
+}
+
+.live__device.is-active {
+  border-color: var(--color-accent-600);
+  background: color-mix(in srgb, var(--color-accent-900) 70%, transparent);
+  color: var(--color-accent-200);
+}
+
+.live__device-size {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.02em;
+  color: var(--color-neutral-600);
+  font-variant-numeric: tabular-nums;
+}
+
+.live__device.is-active .live__device-size {
+  color: color-mix(in srgb, var(--color-accent-300) 78%, transparent);
+}
+
+.live__toolbar-end {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.live__scale {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  font-size: 11px;
+  color: var(--color-neutral-500);
+  font-variant-numeric: tabular-nums;
+  min-width: 4ch;
+  text-align: right;
+}
+
+.live__fs {
+  font-size: 12px;
+  padding: 7px 12px;
+}
+
+/* --- Palco e moldura do dispositivo -------------------------------- */
+
+.live__stage {
+  position: relative;
+  padding: clamp(14px, 2vw, 24px);
+  height: clamp(340px, 58vh, 600px);
+  background:
+    radial-gradient(
+      520px circle at 50% 0%,
+      color-mix(in srgb, var(--color-accent-900) 42%, transparent),
+      transparent 70%
+    ),
+    var(--color-neutral-900);
+  overflow: hidden;
+}
+
+/* A caixa de conteúdo do palco: é ela que o ResizeObserver mede. */
+.live__stage-area {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* O shell interpola tamanho e raio; o viewport dentro dele já refluiu. */
+.live__shell {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-neutral-700);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-md);
+  transition:
+    width 0.52s var(--ease-out-expo),
+    height 0.52s var(--ease-out-expo),
+    border-radius 0.52s var(--ease-out-expo),
+    border-color 0.3s,
+    box-shadow 0.4s;
+}
+
+.live__stage--tablet .live__shell {
+  border-radius: 12px;
+}
+
+.live__stage--app .live__shell {
+  border-radius: 22px;
+  border-width: 2px;
+  border-color: var(--color-neutral-600);
+}
+
+.live__shell.is-morphing {
+  border-color: var(--color-accent-600);
+  box-shadow:
+    var(--shadow-md),
+    0 0 26px 2px color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+/* Entalhe do topo do telefone — só no formato app. */
+.live__notch {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 2;
+  width: 34%;
+  height: 7px;
+  border-radius: 0 0 7px 7px;
+  background: var(--color-neutral-800);
+  animation: riseIn 0.4s var(--ease-out-expo) both;
+}
+
+/* O viewport tem o tamanho lógico do dispositivo e é escalado para caber —
+   é isso que faz o site renderizar o layout verdadeiro do formato. */
+.live__viewport {
+  transform-origin: top left;
+  transition: transform 0.52s var(--ease-out-expo);
+}
+
+.live__iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  background: var(--color-bg);
+  transition: opacity 0.26s;
+}
+
+.is-morphing .live__iframe {
+  opacity: 0.18;
+}
+
+.live__status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+  background: var(--color-neutral-900);
+}
+
+.live__spinner {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--color-neutral-700);
+  border-top-color: var(--color-accent);
+  animation: spin 0.85s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.live__status-text {
+  font-size: 13px;
+  color: var(--color-accent-300);
+}
+
+.live__status-note {
+  font-size: 12px;
+  line-height: 1.55;
+  max-width: 42ch;
+  color: var(--color-neutral-500);
+}
+
+.live__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px clamp(14px, 2vw, 18px);
+  border-top: 1px solid var(--color-neutral-800);
+}
+
+.live__open {
+  font-size: 12.5px;
+  padding: 8px 14px;
+}
+
+/* --- Tela cheia ---------------------------------------------------- *
+ * `:fullscreen` tira o elemento do fluxo da página, então o palco passa a
+ * crescer sozinho e a escala sobe até 100%.
+ * ------------------------------------------------------------------ */
+
+.live:fullscreen {
+  background: var(--color-neutral-900);
+  height: 100%;
+}
+
+.live:fullscreen .live__stage {
+  flex: 1;
+  height: auto;
+  padding: clamp(18px, 3vh, 40px);
+}
+
+.live:fullscreen .live__toolbar,
+.live:fullscreen .live__footer {
+  padding-inline: clamp(16px, 4vw, 48px);
+}
+
+@media (max-width: 620px) {
+  .live__toolbar {
+    gap: 10px;
+  }
+
+  .live__device {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .live__device-size {
+    display: none;
+  }
+
+  .live__scale {
+    display: none;
+  }
+
+  .live__stage {
+    height: clamp(300px, 52vh, 460px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live__spinner {
+    animation-duration: 2s;
+  }
+
+  .live__shell,
+  .live__viewport {
+    transition: none;
+  }
+
+  .live__notch {
+    animation: none;
+  }
+
+  .is-morphing .live__iframe {
+    opacity: 1;
+  }
+}
+
+.sheet__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 16px clamp(20px, 3vw, 30px) clamp(20px, 3vw, 30px);
+  flex-wrap: wrap;
+}
+
+.sheet__privacy {
+  font-size: 12px;
+  color: var(--color-neutral-500);
+}
+
+.sheet__nav {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.sheet__nav .btn {
+  font-size: 13px;
+}
+
+.sheet__hint {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--color-neutral-500);
+  border: 1px solid var(--color-neutral-800);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+}
+
+@media (max-width: 560px) {
+  .sheet__hint {
+    display: none;
+  }
+}

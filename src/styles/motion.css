@@ -1,0 +1,323 @@
+/* ------------------------------------------------------------------ *
+ * Vocabulário de movimento
+ *
+ * Duas famílias de entrada:
+ *   .stagger  → transição disparada pela revelação da seção (scroll)
+ *   .rise-in  → animação disparada pela montagem do elemento (React key)
+ * Ambas leem `--stagger` do próprio índice, então a cascata sai de graça.
+ *
+ * As `@property` tipadas (`--ring-angle`, `--beam-angle`) vivem em
+ * tokens.css, fora das camadas.
+ * ------------------------------------------------------------------ */
+
+.stagger {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.55s var(--ease-out-expo),
+    transform 0.55s var(--ease-out-expo);
+  transition-delay: calc(var(--stagger, 0) * 70ms);
+}
+
+.is-visible .stagger {
+  opacity: 1;
+  transform: none;
+}
+
+.rise-in {
+  animation: riseIn 0.5s var(--ease-out-expo) both;
+  animation-delay: calc(var(--stagger, 0) * 55ms);
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.stagger:nth-child(1),
+.rise-in:nth-child(1) {
+  --stagger: 0;
+}
+.stagger:nth-child(2),
+.rise-in:nth-child(2) {
+  --stagger: 1;
+}
+.stagger:nth-child(3),
+.rise-in:nth-child(3) {
+  --stagger: 2;
+}
+.stagger:nth-child(4),
+.rise-in:nth-child(4) {
+  --stagger: 3;
+}
+.stagger:nth-child(5),
+.rise-in:nth-child(5) {
+  --stagger: 4;
+}
+.stagger:nth-child(6),
+.rise-in:nth-child(6) {
+  --stagger: 5;
+}
+.stagger:nth-child(7),
+.rise-in:nth-child(7) {
+  --stagger: 6;
+}
+.stagger:nth-child(n + 8),
+.rise-in:nth-child(n + 8) {
+  --stagger: 7;
+}
+
+/* --- Anel cônico animado ------------------------------------------ *
+ * Duas camadas de fundo: a de dentro pinta o padding-box, a cônica
+ * pinta a borda. Girar o ângulo dá um contorno vivo sem pseudo-elemento.
+ * ------------------------------------------------------------------ */
+
+.ring {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--ring-fill), var(--ring-fill)) padding-box,
+    conic-gradient(
+        from var(--ring-angle),
+        var(--color-accent-800),
+        var(--color-accent) 25%,
+        var(--color-accent-800) 50%,
+        var(--color-orchid) 75%,
+        var(--color-accent-800)
+      )
+      border-box;
+  animation: ringSpin 7s linear infinite;
+}
+
+.availability.ring {
+  --ring-fill: color-mix(in srgb, var(--color-bg) 92%, var(--color-accent-900));
+}
+
+.tag-accent.ring {
+  --ring-fill: color-mix(in srgb, var(--color-accent-900) 92%, black);
+}
+
+@keyframes ringSpin {
+  to {
+    --ring-angle: 360deg;
+  }
+}
+
+/* --- Grão de filme ------------------------------------------------- *
+ * Ruído gerado por `feTurbulence` num data URI — nenhuma imagem baixada.
+ * É o que tira a superfície do "chapado de template".
+ * ------------------------------------------------------------------ */
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+
+/* --- Aurora que segue o ponteiro ----------------------------------- *
+ * `z-index: -1` dentro do contexto isolado da `.page`: acima do fundo
+ * dela, abaixo do conteúdo. As coordenadas vêm como custom properties.
+ * ------------------------------------------------------------------ */
+
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    680px circle at var(--px, 70%) var(--py, 12%),
+    color-mix(in srgb, var(--color-violet) 9%, transparent),
+    transparent 68%
+  );
+}
+
+/* --- Botão magnético ----------------------------------------------- */
+
+.magnetic {
+  transform: translate(var(--mag-x, 0px), var(--mag-y, 0px));
+  transition:
+    transform 0.28s var(--ease-out-expo),
+    background 0.25s,
+    border-color 0.25s,
+    color 0.25s,
+    box-shadow 0.3s;
+}
+
+/* --- Tipografia cinética ------------------------------------------- *
+ * A máscara é a linha; o texto sobe de trás dela. O padding/margin
+ * negativo devolve espaço para as descidas (p, y) não serem cortadas.
+ * ------------------------------------------------------------------ */
+
+.hero__line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
+}
+
+.hero__line > span {
+  display: block;
+  animation: lineUp 1s var(--ease-out-expo) both;
+}
+
+.hero__line:nth-child(1) > span {
+  animation-delay: 0.08s;
+}
+
+.hero__line:nth-child(2) > span {
+  animation-delay: 0.2s;
+}
+
+@keyframes lineUp {
+  from {
+    transform: translateY(110%);
+  }
+}
+
+/* --- Saída do hero guiada pelo scroll ------------------------------ *
+ * `animation-timeline: view()` liga o progresso da animação à posição do
+ * elemento na viewport — sem listener, sem rAF, fora da main thread.
+ * ------------------------------------------------------------------ */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__inner {
+      animation: heroExit linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 92%;
+    }
+
+    @keyframes heroExit {
+      to {
+        opacity: 0.12;
+        transform: translateY(-34px);
+        filter: blur(2px);
+      }
+    }
+  }
+}
+
+/* --- View Transitions ---------------------------------------------- *
+ * O painel da folha tem nome fixo. Ao abrir, o card clicado recebe o
+ * mesmo nome no snapshot "antes" — e o navegador interpola o card no
+ * painel. Ao fechar, o inverso. `data-vt` no <html> escolhe a coreografia.
+ * ------------------------------------------------------------------ */
+
+.sheet__panel {
+  view-transition-name: case-panel;
+}
+
+::view-transition-group(case-panel) {
+  animation-duration: 0.5s;
+  animation-timing-function: var(--ease-out-expo);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+}
+
+/* Abrir: a captura do painel preenche a caixa que cresce, recortada pelo
+   topo — o conteúdo não estica. O card só se dissolve. */
+html[data-vt='open']::view-transition-group(case-panel),
+html[data-vt='close']::view-transition-group(case-panel) {
+  overflow: clip;
+  border-radius: var(--radius-lg);
+}
+
+html[data-vt='open']::view-transition-old(case-panel) {
+  animation-duration: 0.2s;
+}
+
+html[data-vt='open']::view-transition-new(case-panel) {
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 0;
+  animation-duration: 0.4s;
+}
+
+/* Fechar: o painel encolhe de volta até o card. */
+html[data-vt='close']::view-transition-old(case-panel) {
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 0;
+  animation-duration: 0.3s;
+}
+
+/* A entrada em CSS da folha brigaria com o morph. */
+html[data-vt='open'] .sheet,
+html[data-vt='open'] .sheet__panel {
+  animation: none;
+}
+
+/* Trocar de case: o painel fica, só o conteúdo desliza. */
+html[data-vt='step']::view-transition-old(case-panel) {
+  animation: casePanelOut 0.26s var(--ease-out-expo) both;
+}
+
+html[data-vt='step']::view-transition-new(case-panel) {
+  animation: casePanelIn 0.38s var(--ease-out-expo) both;
+}
+
+@keyframes casePanelOut {
+  to {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.99);
+  }
+}
+
+@keyframes casePanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.99);
+  }
+}
+
+/* --- Brilho do texto de destaque ---------------------------------- */
+
+@keyframes sheen {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* --- Preferência por menos movimento ------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .stagger,
+  .rise-in {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    animation: none;
+  }
+
+  .ring,
+  .hero__line > span,
+  :is(.hero__title, .gallery__title, .journey__title, .contact__title) .accent {
+    animation: none;
+  }
+
+  .magnetic {
+    transform: none;
+    transition: none;
+  }
+
+  .aurora,
+  .grain {
+    display: none;
+  }
+}

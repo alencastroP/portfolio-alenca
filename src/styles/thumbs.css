@@ -1,0 +1,389 @@
+/* ------------------------------------------------------------------ *
+ * Capas de projeto — a captura real do app quando existe; sem ela, a
+ * silhueta dele desenhada em CSS
+ * ------------------------------------------------------------------ */
+
+.thumb__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+/* Capa com captura: a janela do navegador mostra o próprio projeto. O
+   `zoom` que engorda a silhueta no card herói não vale para uma imagem. */
+.thumb--shot .thumb__body {
+  position: relative;
+  zoom: 1;
+}
+
+/* Ancorada no canto superior esquerdo: é ali que ficam logo, navegação e
+   o hero de cada site — o que identifica o projeto num relance. No card
+   herói, mais alto que a captura, o recorte centralizado cortaria o logo. */
+.thumb__shot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 0 0;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.mini {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 7px;
+}
+
+/* Peças compartilhadas ---------------------------------------------- */
+
+.mini__line {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--color-neutral-700);
+  display: block;
+}
+
+.mini__line--strong {
+  height: 7px;
+  background: color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+.mini__line--short {
+  width: 55%;
+}
+
+.mini__badge {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  padding: 3px 5px;
+  border-radius: 3px;
+  color: var(--color-accent-200);
+  background: color-mix(in srgb, var(--color-accent-800) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+
+/* 01 · N1 App — fila de tickets + triagem ---------------------------- */
+
+.mini--n1 .mini__list {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mini__ticket {
+  flex: 1;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--color-neutral-700) 55%, transparent);
+  border-left: 2px solid var(--color-neutral-600);
+}
+
+.mini__ticket.is-active {
+  border-left-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent-800) 60%, transparent);
+}
+
+.mini--n1 .mini__panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-left: 7px;
+  border-left: 1px solid var(--color-neutral-800);
+}
+
+/* 02 · Eixo — abas + métricas + tabela ------------------------------- */
+
+.mini--eixo {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mini__tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.mini__tabs span {
+  height: 9px;
+  width: 22px;
+  border-radius: 5px;
+  border: 1px solid var(--color-neutral-700);
+}
+
+.mini__tabs .is-active {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent-800) 60%, transparent);
+}
+
+.mini__tiles {
+  display: flex;
+  gap: 5px;
+  flex: 1;
+}
+
+.mini__tiles span {
+  flex: 1;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--color-neutral-700) 45%, transparent);
+  border-top: 2px solid var(--color-neutral-600);
+}
+
+.mini__tiles span:nth-child(2) {
+  border-top-color: var(--color-accent);
+}
+
+.mini__table {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mini__table span {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-neutral-800);
+}
+
+.mini__table span:first-child {
+  width: 78%;
+}
+
+/* 03 · Cantina — cardápio + mensagem --------------------------------- */
+
+.mini--delivery .mini__menu {
+  flex: 0 0 46%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mini--delivery .mini__menu span {
+  flex: 1;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--color-neutral-700) 50%, transparent);
+}
+
+.mini--delivery .mini__menu span:first-child {
+  background: color-mix(in srgb, var(--color-accent-800) 60%, transparent);
+}
+
+.mini__bubble {
+  flex: 1;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 6px 6px 6px 2px;
+  background: color-mix(in srgb, var(--color-accent-900) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 32%, transparent);
+}
+
+.mini__bubble span {
+  height: 4px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--color-accent-200) 45%, transparent);
+}
+
+/* 04 · Consultoria — landing de conversão ---------------------------- */
+
+.mini--landing {
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mini__hero {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mini__copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mini__cta {
+  display: block;
+  width: 44px;
+  height: 10px;
+  margin-top: 3px;
+  border-radius: 5px;
+  background: var(--color-accent);
+  box-shadow: 0 0 10px -1px color-mix(in srgb, var(--color-accent) 60%, transparent);
+}
+
+/* Retrato desenhado com gradientes: cabeça, ombros e o fundo do círculo. */
+.mini__portrait {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 40%, transparent);
+  background:
+    radial-gradient(circle at 50% 40%, var(--color-accent-2-300) 0 17%, transparent 18%),
+    radial-gradient(ellipse 58% 42% at 50% 100%, var(--color-accent-2-400) 0 60%, transparent 61%),
+    linear-gradient(160deg, var(--color-accent-800), var(--color-accent-900));
+}
+
+.mini__quotes {
+  display: flex;
+  gap: 5px;
+}
+
+.mini__quotes span {
+  flex: 1;
+  height: 14px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--color-neutral-700) 45%, transparent);
+  border-top: 2px solid var(--color-neutral-600);
+}
+
+.mini__quotes span:nth-child(2) {
+  border-top-color: var(--color-accent);
+}
+
+/* 05 · Vitrine white-label — estoque + agente de IA ------------------- */
+
+.mini--store {
+  gap: 8px;
+}
+
+.mini__cars {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+
+/* Cada tile: foto do carro em cima, linha de preço embaixo. */
+.mini__cars span {
+  border-radius: 3px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent-800) 65%, transparent) 0 58%,
+    color-mix(in srgb, var(--color-neutral-700) 45%, transparent) 58%
+  );
+}
+
+.mini__cars .is-dim {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-neutral-700) 50%, transparent) 0 58%,
+    color-mix(in srgb, var(--color-neutral-800) 60%, transparent) 58%
+  );
+}
+
+.mini__chat {
+  flex: 0 0 42%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 5px;
+  padding: 6px;
+  border-radius: 5px;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent);
+  background: color-mix(in srgb, var(--color-accent-900) 70%, transparent);
+}
+
+.mini__chat .mini__badge {
+  margin-bottom: auto;
+}
+
+.mini__bubble-in {
+  display: block;
+  width: 80%;
+  height: 9px;
+  border-radius: 5px 5px 5px 2px;
+  background: color-mix(in srgb, var(--color-neutral-600) 60%, transparent);
+}
+
+.mini__bubble-in--short {
+  width: 52%;
+}
+
+.mini__bubble-out {
+  display: block;
+  align-self: flex-end;
+  width: 64%;
+  height: 9px;
+  border-radius: 5px 5px 2px 5px;
+  background: color-mix(in srgb, var(--color-accent) 60%, transparent);
+}
+
+/* 06 · Natal Transfer — trajeto e tarifa ----------------------------- */
+
+.mini--transfer {
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+
+.mini__route {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mini__node {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 2px solid var(--color-neutral-500);
+  flex: 0 0 auto;
+}
+
+.mini__node--end {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  box-shadow: 0 0 8px 1px color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+.mini__path {
+  flex: 1;
+  height: 2px;
+  border-radius: 1px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--color-accent-700) 0 7px,
+    transparent 7px 12px
+  );
+}
+
+.mini__fare {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mini__fare .mini__line {
+  flex: 1;
+}
+
+.mini__seats {
+  display: flex;
+  gap: 4px;
+}
+
+.mini__seats span {
+  width: 13px;
+  height: 8px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+.mini__seats .is-dim {
+  background: var(--color-neutral-700);
+}

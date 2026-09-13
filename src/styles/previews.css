@@ -1,0 +1,605 @@
+/* ------------------------------------------------------------------ *
+ * Previews interativos — vocabulário compartilhado pelos seis apps
+ * ------------------------------------------------------------------ */
+
+.pv-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+
+.pv-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pv-aside {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--color-neutral-800);
+  padding-top: 16px;
+}
+
+@media (min-width: 760px) {
+  .pv-aside {
+    border-top: 0;
+    padding-top: 0;
+    border-left: 1px solid var(--color-neutral-800);
+    padding-left: 18px;
+  }
+
+  .pv-split--n1 {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: 16px;
+  }
+
+  .pv-split--n1 .pv-aside {
+    padding-left: 16px;
+  }
+
+  .pv-split--transfer {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  }
+
+  .pv-split--leaner {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  }
+
+  .pv-split--delivery {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  }
+
+  .pv-split--gestao {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+/* --- Rótulos ------------------------------------------------------ */
+
+.pv-title {
+  font-size: 13px;
+  font-family: var(--font-heading);
+}
+
+.pv-label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-neutral-500);
+}
+
+.pv-note {
+  font-size: 11.5px;
+  color: var(--color-neutral-500);
+}
+
+.pv-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.pv-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pv-stack--field {
+  margin-top: 14px;
+}
+
+.pv-field {
+  margin-top: 16px;
+}
+
+.pv-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.pv-actions {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.pv-send {
+  margin-top: 16px;
+  align-self: flex-start;
+}
+
+.pv-head--tight {
+  margin-bottom: 0;
+}
+
+/* Tags dentro dos previews são um degrau menores que as da página. */
+.pv-option .tag,
+.pv-table__row .tag,
+.pv-head .tag {
+  font-size: 10px;
+}
+
+.pv-actions .btn,
+.pv-col > .btn,
+.pv-aside > .btn {
+  font-size: 13px;
+}
+
+/* --- Linha selecionável ------------------------------------------- */
+
+.pv-option {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  padding: 11px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-neutral-800);
+  background: color-mix(in srgb, var(--color-neutral-800) 42%, transparent);
+  transition:
+    border-color 0.25s,
+    background 0.25s,
+    color 0.25s;
+}
+
+.pv-option:hover {
+  border-color: var(--color-neutral-600);
+}
+
+.pv-option.is-selected {
+  border-color: var(--color-accent-600);
+  background: color-mix(in srgb, var(--color-accent-900) 46%, transparent);
+}
+
+.pv-option__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pv-option__label {
+  font-size: 13px;
+}
+
+.pv-option__meta {
+  display: block;
+  margin-top: 3px;
+}
+
+.pv-option--mono {
+  font-family: var(--font-heading);
+  font-size: 12.5px;
+  padding: 9px 11px;
+  background: transparent;
+  color: color-mix(in srgb, var(--color-text) 74%, transparent);
+}
+
+.pv-option--mono.is-selected {
+  background: color-mix(in srgb, var(--color-accent-900) 46%, transparent);
+  color: var(--color-accent-200);
+}
+
+/* --- Chip / aba ---------------------------------------------------- */
+
+.pv-chip {
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  padding: 6px 13px;
+  border-radius: 20px;
+  border: 1px solid var(--color-neutral-700);
+  background: transparent;
+  color: var(--color-neutral-400);
+  transition:
+    border-color 0.25s,
+    background 0.25s,
+    color 0.25s;
+}
+
+.pv-chip:hover {
+  color: var(--color-neutral-200);
+}
+
+.pv-chip.is-active {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent-900) 60%, transparent);
+  color: var(--color-accent-200);
+}
+
+.pv-chip--method {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  border-radius: var(--radius-sm);
+}
+
+/* --- Bloco de código ---------------------------------------------- */
+
+.pv-code {
+  margin: 10px 0 0;
+  padding: 14px;
+  background: var(--color-neutral-800);
+  border: 1px solid var(--color-neutral-700);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--color-accent-200);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 190px;
+}
+
+.pv-code--message {
+  color: color-mix(in srgb, var(--color-text) 86%, transparent);
+  line-height: 1.7;
+  padding: 13px;
+  flex: 1;
+  min-height: 180px;
+}
+
+/* --- N1 ------------------------------------------------------------ */
+
+.n1-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.n1-subject {
+  display: block;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-top: 5px;
+}
+
+.n1-detail__subject {
+  font-size: 14.5px;
+  line-height: 1.45;
+  margin-top: 9px;
+  font-family: var(--font-heading);
+}
+
+.n1-detail__body {
+  font-size: 13px;
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--color-text) 68%, transparent);
+  margin-top: 9px;
+}
+
+.n1-triage {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--color-neutral-800);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-accent-900) 34%, transparent);
+}
+
+.n1-triage__label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent-300);
+}
+
+.n1-triage__result {
+  font-size: 13px;
+  line-height: 1.55;
+  margin-top: 8px;
+  color: color-mix(in srgb, var(--color-text) 84%, transparent);
+}
+
+/* --- Eixo ---------------------------------------------------------- */
+
+.eixo-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.eixo-tabs {
+  position: relative;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 14px 0 16px;
+  border-bottom: 1px solid var(--color-neutral-800);
+  padding-bottom: 12px;
+}
+
+/* Um único realce desliza até a aba ativa — as medidas vêm de um
+   useLayoutEffect, a interpolação é do CSS. */
+.eixo-tabs__indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 20px;
+  border: 1px solid var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent-900) 60%, transparent);
+  pointer-events: none;
+  transition:
+    transform 0.38s var(--ease-out-expo),
+    width 0.38s var(--ease-out-expo),
+    opacity 0.25s;
+}
+
+.eixo-tabs .pv-chip {
+  position: relative;
+  z-index: 1;
+}
+
+.eixo-tabs .pv-chip.is-active {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-accent-200);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eixo-tabs__indicator {
+    transition: none;
+  }
+}
+
+.pv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.pv-metric {
+  border: 1px solid var(--color-neutral-800);
+  border-radius: var(--radius-sm);
+  padding: 13px;
+  background: color-mix(in srgb, var(--color-neutral-800) 55%, transparent);
+}
+
+.pv-metric__label {
+  font-size: 11px;
+  color: var(--color-neutral-500);
+}
+
+.pv-metric__value {
+  font-size: 23px;
+  font-family: var(--font-heading);
+  margin-top: 6px;
+  color: var(--color-text);
+}
+
+.pv-metric__value--accent {
+  color: var(--color-accent);
+}
+
+.pv-table {
+  margin-top: 16px;
+  border: 1px solid var(--color-neutral-800);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.pv-table__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+  gap: 10px;
+  padding: 11px 13px;
+  border-top: 1px solid var(--color-neutral-800);
+  font-size: 13px;
+  align-items: center;
+}
+
+.pv-table__row--head {
+  padding: 10px 13px;
+  background: var(--color-neutral-800);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-neutral-400);
+  border-top: 0;
+}
+
+.pv-table__muted {
+  color: color-mix(in srgb, var(--color-text) 66%, transparent);
+}
+
+/* --- Transfer ------------------------------------------------------ */
+
+.tr-price {
+  font-size: 12.5px;
+  color: var(--color-accent-300);
+}
+
+.tr-counter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 9px;
+}
+
+.tr-counter .btn {
+  font-size: 15px;
+  padding: 5px 13px;
+}
+
+.tr-counter__value {
+  font-size: 19px;
+  font-family: var(--font-heading);
+  min-width: 22px;
+  text-align: center;
+}
+
+.tr-summary {
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 10px;
+  color: color-mix(in srgb, var(--color-text) 74%, transparent);
+}
+
+.tr-total {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-neutral-800);
+}
+
+.tr-total__value {
+  font-size: 33px;
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em;
+  margin-top: 5px;
+  color: var(--color-accent);
+}
+
+.pv-confirm {
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 11px;
+  color: var(--color-accent-300);
+  min-height: 18px;
+}
+
+/* --- Delivery ------------------------------------------------------ */
+
+.del-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 11px 12px;
+  border: 1px solid var(--color-neutral-800);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-neutral-800) 45%, transparent);
+}
+
+.del-item__name {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.del-item__price {
+  font-size: 11.5px;
+  color: var(--color-neutral-500);
+  margin-top: 3px;
+}
+
+.del-item__qty {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.del-item__qty .btn {
+  font-size: 14px;
+  padding: 3px 10px;
+}
+
+.del-item__count {
+  font-size: 14px;
+  font-family: var(--font-heading);
+  min-width: 16px;
+  text-align: center;
+  color: var(--color-neutral-500);
+}
+
+.del-item__count.is-active {
+  color: var(--color-accent);
+}
+
+.del-total {
+  font-size: 11.5px;
+  color: var(--color-accent-300);
+}
+
+/* --- Gestão -------------------------------------------------------- */
+
+.stock-item {
+  padding: 11px 12px;
+  border: 1px solid var(--color-neutral-800);
+  border-radius: var(--radius-sm);
+}
+
+.stock-item__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.stock-item__amount {
+  font-size: 12.5px;
+  font-family: var(--font-heading);
+  color: var(--color-neutral-400);
+}
+
+.stock-item__amount.is-low {
+  color: var(--color-accent);
+}
+
+.stock-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-neutral-800);
+  margin-top: 9px;
+  overflow: hidden;
+}
+
+.stock-bar__fill {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-neutral-400);
+  transition: width 0.5s var(--ease-out-expo);
+}
+
+.stock-bar__fill.is-low {
+  background: var(--color-accent);
+}
+
+.recipe {
+  padding: 12px;
+  border: 1px solid var(--color-neutral-800);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-neutral-800) 45%, transparent);
+}
+
+.recipe__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.recipe__head .btn {
+  font-size: 12px;
+  padding: 4px 11px;
+}
+
+.recipe__cost {
+  font-size: 11.5px;
+  color: var(--color-neutral-500);
+  margin-top: 7px;
+}
+
+.gest-log {
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px solid var(--color-neutral-800);
+  flex: 1;
+}
+
+.gest-log__list {
+  font-size: 12.5px;
+  line-height: 1.75;
+  margin: 9px 0 0;
+  padding: 0;
+  list-style: none;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+}

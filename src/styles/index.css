@@ -1,0 +1,21 @@
+/* Ordem das camadas: tema do Tailwind → reset → componentes → utilitários.
+   O CSS das seções mora em `components`, então um utilitário do Tailwind
+   sempre vence quando os dois disputam a mesma propriedade — e o preflight
+   do Tailwind fica de fora: o reset do projeto já é o `base.css`. */
+@layer theme, base, components, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+@import './tokens.css';
+@import './base.css' layer(base);
+@import './layout.css' layer(components);
+@import './sections.css' layer(components);
+@import './journey.css' layer(components);
+@import './stack.css' layer(components);
+@import './thumbs.css' layer(components);
+@import './case-sheet.css' layer(components);
+@import './previews.css' layer(components);
+@import './effects.css' layer(components);
+@import './showcase.css' layer(components);
+@import './motion.css' layer(components);

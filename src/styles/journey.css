@@ -1,0 +1,653 @@
+/* ------------------------------------------------------------------ *
+ * Sobre mim — retrato, bio e histograma de escopo por ano
+ * ------------------------------------------------------------------ */
+
+.section--journey {
+  padding-block: var(--section-pad);
+}
+
+/* --- Intro: retrato + texto ---------------------------------------- */
+
+.journey__intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(28px, 4.4vw, 40px);
+  margin-top: clamp(28px, 3.6vw, 38px);
+}
+
+@media (min-width: 760px) {
+  .journey__intro {
+    grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+    gap: clamp(36px, 5vw, 68px);
+    align-items: start;
+  }
+}
+
+/* O palco só guarda perspectiva e o retângulo que os três retratos
+   compartilham — os slots dentro dele é que recebem posição e halo. */
+.journey__portrait-stage {
+  position: relative;
+  width: min(300px, 80vw);
+  aspect-ratio: 0.94;
+  perspective: 900px;
+}
+
+/* Cada retrato mora num slot: ele decide posição, tamanho e a inclinação
+   fixa da composição, enquanto a moldura (abaixo) cuida só da inclinação
+   que segue o ponteiro. Separar as duas evita que um único `transform`
+   precise somar rotação fixa + tilt + reveal ao mesmo tempo. */
+.journey__portrait-slot {
+  --slot-rotate: 0deg;
+  --slot-scale: 1.1;
+  position: absolute;
+  opacity: 0;
+  filter: blur(18px);
+  transform: rotate(var(--slot-rotate)) scale(var(--slot-scale));
+  transition:
+    opacity 0.9s var(--ease-out-expo),
+    filter 1s var(--ease-out-expo),
+    transform 1s var(--ease-out-expo);
+}
+
+.is-visible .journey__portrait-slot {
+  --slot-scale: 1;
+  opacity: 1;
+  filter: none;
+}
+
+.journey__portrait-slot--main {
+  top: 0;
+  left: 0;
+  width: 72%;
+  aspect-ratio: 1;
+  z-index: 1;
+  transition-delay: 0.1s;
+}
+
+.journey__portrait-slot--accent-a {
+  right: -4%;
+  bottom: -9%;
+  width: 50%;
+  aspect-ratio: 4 / 5;
+  z-index: 2;
+  --slot-rotate: -6deg;
+  transition-delay: 0.3s;
+}
+
+.journey__portrait-slot--accent-b {
+  left: -9%;
+  top: 20%;
+  width: 32%;
+  aspect-ratio: 1;
+  z-index: 0;
+  --slot-rotate: 8deg;
+  transition-delay: 0.46s;
+}
+
+/* Halo atrás do retrato principal — o mesmo brilho de antes, só que preso
+   ao slot em vez do palco, já que agora o palco hospeda três fotos. */
+.journey__portrait-slot--main::before {
+  content: '';
+  position: absolute;
+  inset: -16% -12% -20%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-accent) 24%, transparent),
+    transparent 72%
+  );
+  filter: blur(16px);
+  opacity: 0.7;
+  transition: opacity 0.5s;
+}
+
+.journey__portrait-stage:hover .journey__portrait-slot--main::before {
+  opacity: 1;
+}
+
+/* Borda em gradiente: 1px de padding pintado, foto por cima. Sai mais viva
+   que uma borda sólida e não custa um pseudo-elemento a mais. */
+.journey__portrait-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 1px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--color-accent) 70%, transparent),
+    color-mix(in srgb, var(--color-neutral-700) 65%, transparent) 46%,
+    color-mix(in srgb, var(--color-accent-800) 90%, transparent)
+  );
+  box-shadow: 0 20px 44px -24px rgba(0, 0, 0, 0.95);
+  /* As custom properties de inclinação vêm do usePointerSpotlight — cada
+     retrato tem seu próprio ref, então elas se movem independentemente. */
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transition:
+    transform 0.32s var(--ease-out-expo),
+    box-shadow 0.45s;
+}
+
+/* Retratos de apoio: moldura mais discreta, sombra mais curta — o
+   principal continua sendo o que mais pesa na composição. */
+.journey__portrait-frame--accent {
+  border-radius: var(--radius-md);
+  box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.9);
+}
+
+.journey__portrait-stage:hover .journey__portrait-frame {
+  box-shadow: 0 26px 52px -22px rgba(0, 0, 0, 0.95);
+}
+
+.journey__portrait-stage:hover .journey__portrait-frame--accent {
+  box-shadow: 0 18px 36px -16px rgba(0, 0, 0, 0.95);
+}
+
+.journey__portrait {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: calc(var(--radius-lg) - 1px);
+  /* Em repouso a foto assenta no tom do fundo; ao apontar, ela acende. */
+  filter: saturate(0.86) contrast(1.05) brightness(0.93);
+  transition:
+    filter 0.6s var(--ease-out-expo),
+    transform 0.7s var(--ease-out-expo);
+}
+
+.journey__portrait-frame--accent .journey__portrait {
+  border-radius: calc(var(--radius-md) - 1px);
+}
+
+.journey__portrait-frame:hover .journey__portrait {
+  filter: none;
+  transform: scale(1.045);
+}
+
+/* Véu: escurece a base para o retrato não brigar com o título, mais um
+   especular que segue o ponteiro pelas coordenadas do spotlight. */
+.journey__portrait-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    radial-gradient(
+      200px circle at var(--px, 50%) var(--py, 0%),
+      color-mix(in srgb, var(--color-accent) 20%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(to top, color-mix(in srgb, var(--color-bg) 52%, transparent), transparent 48%);
+  opacity: 0.85;
+  transition: opacity 0.45s;
+}
+
+.journey__portrait-frame:hover::after {
+  opacity: 0.4;
+}
+
+/* Numa tela bem estreita o terceiro retrato (o de fundo) some: três fotos
+   sobrepostas num palco de ~230px viram ruído em vez de composição. */
+@media (max-width: 480px) {
+  .journey__portrait-slot--accent-b {
+    display: none;
+  }
+}
+
+.journey__content {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 2.8vw, 28px);
+}
+
+.journey__title {
+  text-wrap: balance;
+  font-size: clamp(27px, 3.4vw, 42px);
+  line-height: 1.12;
+  letter-spacing: -0.022em;
+  margin: 0;
+  max-width: 21ch;
+}
+
+/* Régua de acento à esquerda da bio: o mesmo motivo da spine da página, em
+   escala de parágrafo. Ela cresce quando a seção é revelada. */
+.journey__bios {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-left: clamp(16px, 1.8vw, 22px);
+}
+
+.journey__bios::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to bottom,
+    var(--color-accent),
+    color-mix(in srgb, var(--color-accent) 8%, transparent)
+  );
+  transform: scaleY(0);
+  transform-origin: 50% 0;
+  transition: transform 0.85s var(--ease-out-expo) 0.28s;
+}
+
+.is-visible .journey__bios::before {
+  transform: none;
+}
+
+.journey__bio {
+  text-wrap: pretty;
+  font-size: 15px;
+  line-height: 1.72;
+  max-width: 60ch;
+  color: color-mix(in srgb, var(--color-text) 66%, transparent);
+}
+
+/* O primeiro parágrafo é a apresentação: entra maior e mais aceso, e o
+   segundo recua — hierarquia de leitura sem mudar uma palavra. */
+.journey__bio--lead {
+  font-size: clamp(15.5px, 1.35vw, 17px);
+  line-height: 1.68;
+  color: color-mix(in srgb, var(--color-text) 88%, transparent);
+}
+
+/* Sublinhado em vez de fundo: sobrevive à quebra de linha e ainda assim
+   anima, porque a cor da decoração é interpolável. */
+.journey__highlight {
+  font-weight: 500;
+  color: var(--color-accent-100);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 0.8s var(--ease-out-expo) 0.55s;
+}
+
+.is-visible .journey__highlight {
+  text-decoration-color: color-mix(in srgb, var(--color-accent) 52%, transparent);
+}
+
+/* Entrada em cascata dentro da seção: título e bio — o retrato tem a
+   própria cascata (blur reveal por slot, ver acima). */
+.journey__title,
+.journey__bios {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.6s var(--ease-out-expo),
+    transform 0.6s var(--ease-out-expo);
+}
+
+.journey__title {
+  transition-delay: 0.14s;
+}
+
+.journey__bios {
+  transition-delay: 0.22s;
+}
+
+.is-visible .journey__title,
+.is-visible .journey__bios {
+  opacity: 1;
+  transform: none;
+}
+
+/* --- Cabeçalho do gráfico ------------------------------------------ */
+
+.journey__chart-head {
+  margin-top: clamp(80px, 10vw, 144px);
+  padding-block: clamp(18px, 2vw, 24px);
+  border-top: 1px solid var(--color-neutral-800);
+}
+
+.journey__chart-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-neutral-500);
+}
+
+/* --- Histograma ----------------------------------------------------- */
+
+.histogram {
+  /* As colunas têm respiro interno para poderem virar superfície no hover.
+     A margem negativa devolve o alinhamento com o texto acima. */
+  --histo-pad: clamp(10px, 1.1vw, 14px);
+
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(4px, 1vw, 12px);
+  margin: 0 calc(var(--histo-pad) * -1);
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 940px) {
+  .histogram {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(14px, 3vw, 24px);
+  }
+}
+
+@media (max-width: 560px) {
+  .histogram {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+}
+
+.histo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--histo-pad) var(--histo-pad) calc(var(--histo-pad) + 4px);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  transition:
+    background 0.35s,
+    border-color 0.35s,
+    transform 0.4s var(--ease-out-expo);
+}
+
+/* O ano corrente já vem aceso: é a leitura que importa em repouso. */
+.histo--current {
+  border-color: color-mix(in srgb, var(--color-accent-800) 75%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent-900) 40%, transparent),
+    transparent 76%
+  );
+}
+
+@media (hover: hover) {
+  .histo:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--color-accent-700) 62%, transparent);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-accent-900) 58%, transparent),
+      transparent 78%
+    );
+  }
+}
+
+/* A trilha tem 4 unidades de altura; cada frente ocupa uma. Mais frentes,
+   coluna mais alta — e o trilho fantasma deixa o teto visível mesmo nos
+   anos curtos, então a comparação entre colunas é direta. */
+.histo__chart {
+  position: relative;
+  height: clamp(118px, 12vw, 158px);
+}
+
+.histo__track,
+.histo__bars {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.histo__track {
+  justify-content: flex-start;
+}
+
+.histo__bars {
+  justify-content: flex-end;
+}
+
+.histo__slot {
+  flex: 1;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--color-neutral-800) 32%, transparent);
+}
+
+.histo__seg {
+  height: calc((100% - 18px) / 4);
+  border-radius: 4px;
+  /* Degrau mais baixo: precisa ler como preenchido contra o trilho
+     fantasma atrás, por isso não desce até o tom mais escuro da rampa. */
+  background: var(--color-accent-700);
+  transform: scaleY(0);
+  transform-origin: 50% 100%;
+  transition:
+    transform 0.7s var(--ease-out-expo),
+    box-shadow 0.4s;
+  /* Cascata: coluna a coluna (--col), e dentro dela de baixo para cima
+     (--row, contado do fim do DOM porque a base é o último filho). */
+  transition-delay: calc(var(--col, 0) * 110ms + var(--row, 0) * 80ms);
+}
+
+/* O primeiro filho é o topo da coluna: em coluna alinhada ao fim, ele fica
+   em cima. O degrau mais alto — a frente mais recente — é o mais aceso. */
+.histo__seg:nth-child(1) {
+  background: linear-gradient(180deg, var(--color-accent-400), var(--color-accent));
+  box-shadow: 0 0 16px -2px color-mix(in srgb, var(--color-accent) 58%, transparent);
+}
+
+.histo__seg:nth-child(2) {
+  background: var(--color-accent-500);
+}
+
+.histo__seg:nth-child(3) {
+  background: var(--color-accent-600);
+}
+
+@media (hover: hover) {
+  .histo:hover .histo__seg:nth-child(1) {
+    box-shadow: 0 0 24px -1px color-mix(in srgb, var(--color-accent) 78%, transparent);
+  }
+}
+
+.histo__seg:nth-last-child(1) {
+  --row: 0;
+}
+.histo__seg:nth-last-child(2) {
+  --row: 1;
+}
+.histo__seg:nth-last-child(3) {
+  --row: 2;
+}
+.histo__seg:nth-last-child(4) {
+  --row: 3;
+}
+
+.histo:nth-child(1) {
+  --col: 1;
+}
+.histo:nth-child(2) {
+  --col: 2;
+}
+.histo:nth-child(3) {
+  --col: 3;
+}
+.histo:nth-child(4) {
+  --col: 4;
+}
+
+.is-visible .histo__seg {
+  transform: none;
+}
+
+/* A linha de base se desenha da esquerda para a direita, junto da coluna. */
+.histo__axis {
+  height: 1px;
+  margin-top: 14px;
+  background: var(--color-neutral-800);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition:
+    transform 0.7s var(--ease-out-expo),
+    background 0.4s,
+    box-shadow 0.4s;
+  transition-delay: calc(var(--col, 0) * 110ms);
+}
+
+.is-visible .histo__axis {
+  transform: none;
+}
+
+.histo--current .histo__axis {
+  background: var(--color-accent);
+  box-shadow: 0 0 10px 0 color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+.histo__year {
+  font-family: var(--font-heading);
+  font-size: clamp(22px, 2.4vw, 30px);
+  letter-spacing: -0.02em;
+  margin-top: 16px;
+  color: var(--color-neutral-500);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.45s;
+}
+
+.histo--current .histo__year {
+  color: var(--color-accent);
+}
+
+@media (hover: hover) {
+  .histo:hover .histo__year {
+    color: var(--color-accent-200);
+  }
+}
+
+.histo__role {
+  font-size: 14px;
+  line-height: 1.32;
+  margin-top: 5px;
+  color: var(--color-text);
+}
+
+.histo__detail {
+  text-wrap: pretty;
+  font-size: 14px;
+  line-height: 1.55;
+  margin-top: 8px;
+  color: color-mix(in srgb, var(--color-text) 58%, transparent);
+}
+
+/* As frentes numa linha discreta, separadas por ponto: a escala continua
+   com definição embaixo, sem virar uma fileira de etiquetas. A margem
+   automática alinha o rodapé das colunas da mesma linha. */
+.histo__scope {
+  display: flex;
+  flex-wrap: wrap;
+  margin: auto 0 0;
+  padding: 16px 0 0;
+  list-style: none;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-neutral-500);
+  transition: color 0.3s;
+}
+
+/* O ponto vai depois do item, não antes do próximo: quando a linha quebra,
+   ele fica no fim dela em vez de abrir a linha seguinte. */
+.histo__scope li:not(:last-child)::after {
+  content: '·';
+  margin-inline: 6px;
+}
+
+.histo--current .histo__scope {
+  color: var(--color-accent-300);
+}
+
+@media (hover: hover) {
+  .histo:hover .histo__scope {
+    color: var(--color-accent-200);
+  }
+}
+
+/* --- Coluna única: o gráfico deita ---------------------------------- *
+ * Uma barra vertical de 150px por ano vira uma torre de espaço vazio numa
+ * tela estreita. Deitada, ela ocupa a largura que sobra e o degrau mais
+ * recente continua na ponta que cresce — agora à direita.
+ * ------------------------------------------------------------------ */
+
+@media (max-width: 560px) {
+  .histo {
+    padding: 12px 12px 16px;
+  }
+
+  .histo__chart {
+    height: 40px;
+  }
+
+  .histo__track {
+    flex-direction: row;
+  }
+
+  .histo__bars {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+  }
+
+  .histo__seg {
+    height: auto;
+    width: calc((100% - 18px) / 4);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+  }
+
+  .histo__seg:nth-child(1) {
+    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-400));
+  }
+
+  .histo__axis,
+  .histo__year {
+    margin-top: 12px;
+  }
+}
+
+/* --- Preferência por menos movimento ------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .journey__portrait-slot {
+    opacity: 1;
+    filter: none;
+    transform: rotate(var(--slot-rotate, 0deg));
+    transition: none;
+  }
+
+  .journey__title,
+  .journey__bios {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .journey__portrait-frame,
+  .journey__portrait {
+    transform: none;
+    transition: none;
+  }
+
+  .journey__bios::before {
+    transform: none;
+    transition: none;
+  }
+
+  .journey__highlight {
+    text-decoration-color: color-mix(in srgb, var(--color-accent) 52%, transparent);
+    transition: none;
+  }
+
+  .histo,
+  .histo__seg,
+  .histo__axis {
+    transform: none;
+    transition: none;
+  }
+}

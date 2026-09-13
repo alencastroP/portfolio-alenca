@@ -1,0 +1,143 @@
+/* ------------------------------------------------------------------ *
+ * Vitrine do hero: capturas de projetos reais soltas ao lado do título
+ *
+ * O campo e os cards só posicionam — `left`/`top` em %, uma vez. Todo
+ * movimento acontece em `.fcard__body`, e só em `transform`/`opacity`
+ * (escritos pelo Framer Motion): depois da primeira pintura, nada aqui
+ * volta a disparar layout.
+ * ------------------------------------------------------------------ */
+
+.section--hero {
+  /* O mesmo recuo da `.section`: é dele que sai a borda da coluna de texto. */
+  --hero-pad: clamp(0px, 7vw, 72px);
+  --showcase-top: clamp(28px, 7vh, 96px);
+}
+
+/* Desktop: começa onde a coluna de texto termina (a mesma conta do
+   `max-width` do `.hero__inner`) e sangra para a margem lateral da página. */
+.hero-showcase {
+  position: absolute;
+  z-index: 1;
+  top: var(--showcase-top);
+  left: calc(var(--hero-pad) + min(700px, (100% - var(--hero-pad)) * 0.62) + clamp(12px, 2.4vw, 36px));
+  right: calc(-1 * min(max(0px, (100vw - 1180px) / 2), 200px));
+  height: min(100% - var(--showcase-top) - clamp(128px, 19vh, 190px), 640px);
+  /* Só os cards recebem o ponteiro; o vão entre eles não bloqueia nada. */
+  pointer-events: none;
+}
+
+.fcard {
+  position: absolute;
+  left: var(--fc-x);
+  top: var(--fc-y);
+  width: var(--fc-w);
+  z-index: var(--fc-z);
+  translate: -50% -50%;
+  /* Perspectiva por card, não no campo: cada um inclina em torno do próprio
+     centro. Com um ponto de fuga só, os cards das pontas já nasceriam tortos. */
+  perspective: 800px;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fcard__body {
+  position: relative;
+  display: block;
+  transform-style: preserve-3d;
+}
+
+/* A sombra "na mão" mora 40px atrás do card, no mesmo espaço 3D: ao
+   inclinar, ela fica para trás como se o card tivesse saído da mesa.
+   Acende por opacidade — um `box-shadow` animado repintaria a cada quadro. */
+.fcard__shadow {
+  position: absolute;
+  inset: 14% 8% -8%;
+  border-radius: var(--radius-lg);
+  background: var(--color-black);
+  filter: blur(24px);
+  transform: translateZ(-40px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fcard__frame {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.fcard__frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Véu da cor do fundo: em repouso as capturas recuam (as de trás, mais) e
+   não disputam com o título; o card apontado perde o véu e acende. */
+.fcard__veil {
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg);
+  pointer-events: none;
+}
+
+/* Reflexo: um brilho largo que corre sob o cursor com o card na mão. O
+   gradiente é pintado uma vez; depois só anda (`transform`) e acende
+   (`opacity`). */
+.fcard__sheen {
+  position: absolute;
+  left: -50%;
+  top: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--color-white) 16%, transparent),
+    transparent 42%
+  );
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Abaixo do desktop a vitrine desce para o fluxo, entre as ações e os
+   números — longe do título, com uma composição própria. */
+@media (max-width: 1024px) {
+  .hero-showcase {
+    position: relative;
+    inset: auto;
+    width: min(100%, 680px);
+    height: auto;
+    aspect-ratio: 6 / 5;
+    margin-top: clamp(40px, 8vw, 64px);
+  }
+
+  .fcard {
+    left: var(--fc-x-sm);
+    top: var(--fc-y-sm);
+    width: var(--fc-w-sm);
+  }
+}
+
+/* Sai com o texto, pela mesma linha do tempo de scroll do `.hero__inner` —
+   sem o blur dele: desfocar imagem a cada quadro custa caro. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-showcase {
+      animation: showcaseExit linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+
+    @keyframes showcaseExit {
+      to {
+        opacity: 0;
+        transform: translateY(-48px);
+      }
+    }
+  }
+}

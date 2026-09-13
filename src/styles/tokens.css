@@ -1,0 +1,133 @@
+/* ------------------------------------------------------------------ *
+ * Design tokens — tema "Nocturne Violet"
+ *
+ * Os tokens vivem num `@theme` do Tailwind v4: a mesma variável alimenta o
+ * CSS escrito à mão (`var(--color-accent)`) e gera o utilitário
+ * (`text-accent`, `border-neutral-800`). Uma fonte de verdade só.
+ *
+ * `static` emite todas as variáveis mesmo sem utilitário usando — o CSS das
+ * seções lê várias delas por `var()`, e o Tailwind não enxerga isso.
+ * ------------------------------------------------------------------ */
+
+@theme static {
+  /* Sem a paleta padrão: no projeto só existe a cor da marca. */
+  --color-*: initial;
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Papéis */
+  --color-bg: #0b0913;
+  --color-bg-raised: #100d1b;
+  --color-surface: #161225;
+  --color-text: #ece8f6;
+  --color-accent: #a08bff;
+  --color-accent-2: #cf9bff;
+  --color-divider: color-mix(in srgb, #ece8f6 11%, transparent);
+
+  /* Paradas do gradiente de assinatura: índigo → violeta → orquídea → lilás */
+  --color-indigo: #6e6bff;
+  --color-violet: #9d7dff;
+  --color-orchid: #cf8dff;
+  --color-lilac: #f1c6ff;
+
+  /* Rampa neutra — tingida de roxo, nunca cinza puro */
+  --color-neutral-100: #f3f0fb;
+  --color-neutral-200: #e2dcf0;
+  --color-neutral-300: #c9c1de;
+  --color-neutral-400: #a8a0c2;
+  --color-neutral-500: #8a82a5;
+  --color-neutral-600: #6b6388;
+  --color-neutral-700: #4a4365;
+  --color-neutral-800: #2d2742;
+  --color-neutral-900: #19152a;
+
+  /* Rampa de destaque (lavanda) */
+  --color-accent-100: #f3efff;
+  --color-accent-200: #e3dbff;
+  --color-accent-300: #cbbdff;
+  --color-accent-400: #b4a1ff;
+  --color-accent-500: #9b85f7;
+  --color-accent-600: #7e67e8;
+  --color-accent-700: #5f49c4;
+  --color-accent-800: #3c2d85;
+  --color-accent-900: #20184a;
+
+  /* Rampa de destaque secundária (orquídea) */
+  --color-accent-2-100: #fcf1ff;
+  --color-accent-2-200: #f3ddff;
+  --color-accent-2-300: #e6c0ff;
+  --color-accent-2-400: #d6a1ff;
+  --color-accent-2-500: #c285f5;
+  --color-accent-2-600: #a266da;
+  --color-accent-2-700: #7c48b0;
+  --color-accent-2-800: #4f2d76;
+  --color-accent-2-900: #2b1944;
+
+  /* Tipografia: Geist na interface, Instrument Serif itálico nos
+     destaques, Geist Mono nos rótulos — a voz de quem escreve código. */
+  --font-sans: 'Geist Variable', 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: 'Geist Variable', 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Geist Variable', 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', 'Cascadia Code', Menlo, monospace;
+
+  /* Raio */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+
+  /* Elevação — sombras frias, com um sopro de violeta no nível mais alto */
+  --shadow-sm: 0 0 0 1px var(--color-neutral-800);
+  --shadow-md: 0 0 0 1px #3a3356, 0 12px 32px -10px rgb(4 2 12 / 0.75);
+  --shadow-lg:
+    0 0 0 1px #574b85, 0 28px 70px -16px rgb(4 2 12 / 0.9),
+    0 0 48px -12px rgb(160 139 255 / 0.28);
+  --shadow-glow: 0 0 0 1px rgb(160 139 255 / 0.35), 0 8px 32px -6px rgb(160 139 255 / 0.45);
+
+  /* Curvas de animação usadas em todo o site */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Tokens fora dos namespaces do Tailwind. */
+:root {
+  color-scheme: dark;
+
+  --font-heading-weight: 500;
+
+  --space-1: 2.8px;
+  --space-2: 5.6px;
+  --space-3: 8.4px;
+  --space-4: 11.2px;
+  --space-6: 16.8px;
+  --space-8: 22.4px;
+
+  /* Respiro entre seções: generoso de propósito — cada seção diz uma coisa
+     e o vazio em volta é o que dá peso a ela. */
+  --section-pad: clamp(96px, 14vh, 180px);
+
+  --grad-signature: linear-gradient(
+    100deg,
+    var(--color-indigo) 0%,
+    var(--color-violet) 32%,
+    var(--color-orchid) 68%,
+    var(--color-lilac) 100%
+  );
+}
+
+/* Custom properties tipadas: sem `@property` o navegador trata um ângulo
+   como token opaco e não interpola. Com ele, anéis e feixes giram de verdade.
+   Ficam fora das camadas — `@property` é global por natureza. */
+@property --ring-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --beam-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}

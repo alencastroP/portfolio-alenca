@@ -1,0 +1,532 @@
+/* ------------------------------------------------------------------ *
+ * Casca da página, navegação, timeline (spine + nós) e revelação
+ * ------------------------------------------------------------------ */
+
+:root {
+  /* Altura ocupada pela nav flutuante (respiro + pílula). */
+  --nav-h: 66px;
+}
+
+@media (max-width: 780px) {
+  :root {
+    --nav-h: 106px;
+  }
+}
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  /* Contexto de empilhamento próprio: é o que deixa a aurora (`z-index: -1`)
+     acima do fundo da página e abaixo do conteúdo. */
+  isolation: isolate;
+  background:
+    radial-gradient(
+      1100px 700px at 88% -12%,
+      color-mix(in srgb, var(--color-accent-800) 42%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      900px 800px at -14% 38%,
+      color-mix(in srgb, var(--color-indigo) 9%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      1200px 800px at 50% 104%,
+      color-mix(in srgb, var(--color-accent-2-800) 36%, transparent),
+      transparent 70%
+    ),
+    var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+
+.shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5.5vw, 48px);
+}
+
+/* O conteúdo sobe acima do palco 3D do hero, que vive atrás dele. */
+.page__content {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Navegação flutuante ------------------------------------------ *
+ * A barra em si é transparente e não recebe ponteiro: só a pílula de
+ * vidro é clicável, então o respiro em volta não bloqueia a página.
+ * ------------------------------------------------------------------ */
+
+.nav-bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  padding-top: 12px;
+  pointer-events: none;
+}
+
+.nav {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 54px;
+  /* 10px à esquerda: o mesmo respiro que o selo tem em cima e embaixo. */
+  padding: 7px 8px 7px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-neutral-600) 45%, transparent);
+  background: color-mix(in srgb, var(--color-bg) 64%, transparent);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.05),
+    0 14px 36px -18px rgb(0 0 0 / 0.9);
+}
+
+/* Selo <A> + nome: o selo é a marca, o nome diz de quem ela é. */
+.nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: auto;
+  padding-right: 4px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+}
+
+/* O raio acompanha o do selo (13/44) para a sombra seguir o contorno. */
+.brand-mark {
+  --mark: 32px;
+  flex: none;
+  width: var(--mark);
+  height: var(--mark);
+  border-radius: calc(var(--mark) * 13 / 44);
+  transition: box-shadow 0.45s var(--ease-out-expo);
+}
+
+.brand-mark__frame {
+  transition: stroke 0.45s var(--ease-out-expo);
+}
+
+/* O hover do selo grande, em escala de nav: a borda acende e o brilho sobe. */
+.nav-brand:hover .brand-mark,
+.nav-brand:focus-visible .brand-mark {
+  box-shadow: 0 8px 22px -6px rgb(140 74 240 / 0.6);
+}
+
+.nav-brand:hover .brand-mark__frame,
+.nav-brand:focus-visible .brand-mark__frame {
+  stroke: #7b51c4;
+}
+
+.nav-links {
+  position: relative;
+  display: flex;
+  gap: 2px;
+}
+
+/* Um realce só, deslizando até a seção sendo lida (scroll-spy). */
+.nav-links__indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-accent-600) 55%, transparent);
+  background: color-mix(in srgb, var(--color-accent-900) 80%, transparent);
+  box-shadow: 0 0 18px -4px color-mix(in srgb, var(--color-accent) 40%, transparent);
+  pointer-events: none;
+  transition:
+    transform 0.5s var(--ease-out-expo),
+    width 0.5s var(--ease-out-expo),
+    opacity 0.3s;
+}
+
+.nav-link {
+  position: relative;
+  z-index: 1;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  color: color-mix(in srgb, var(--color-text) 64%, transparent);
+  transition: color 0.22s;
+}
+
+.nav-link:hover,
+.nav-link.is-active {
+  color: var(--color-text);
+}
+
+.nav-cmd {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 8px 0 11px;
+  border-radius: 999px;
+  border: 1px solid var(--color-neutral-800);
+  background: color-mix(in srgb, var(--color-neutral-900) 70%, transparent);
+  color: var(--color-neutral-300);
+  cursor: pointer;
+  transition:
+    border-color 0.25s,
+    color 0.25s,
+    background 0.25s;
+}
+
+.nav-cmd:hover {
+  border-color: var(--color-accent-700);
+  color: var(--color-accent-200);
+  background: color-mix(in srgb, var(--color-accent-900) 60%, transparent);
+}
+
+.nav-cmd__icon {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+/* Progresso de leitura: escala em X, sem tocar em layout. */
+.nav-bar__progress {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 2px;
+  transform: scaleX(var(--progress, 0));
+  transform-origin: 0 50%;
+  background: var(--grad-signature);
+  box-shadow: 0 0 12px 0 color-mix(in srgb, var(--color-accent) 55%, transparent);
+  will-change: transform;
+}
+
+.availability {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--color-accent-200);
+  border: 1px solid var(--color-accent-700);
+  border-radius: 20px;
+  padding: 6px 12px;
+  margin-left: 6px;
+}
+
+.availability__dot {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #7ef0b2;
+  display: block;
+  flex: 0 0 auto;
+  box-shadow: 0 0 10px 1px color-mix(in srgb, #7ef0b2 70%, transparent);
+}
+
+/* Onda que sai do ponto: "online" sem precisar de texto. */
+.availability__dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #7ef0b2;
+  animation: ping 2.2s var(--ease-out-expo) infinite;
+}
+
+@keyframes ping {
+  to {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+/* Abaixo do desktop a pílula vira duas linhas *de propósito*: marca, status
+   e comandos em cima, navegação embaixo. O `::after` de base 100% é a
+   quebra forçada — sem ele os itens vazariam em pontos arbitrários. */
+@media (max-width: 780px) {
+  .nav {
+    flex-wrap: wrap;
+    gap: 6px;
+    border-radius: 20px;
+    padding: 8px 8px 6px 10px;
+  }
+
+  .nav::after {
+    content: '';
+    flex-basis: 100%;
+    height: 0;
+    order: 1;
+  }
+
+  .nav-brand {
+    gap: 9px;
+    font-size: 14px;
+  }
+
+  .brand-mark {
+    --mark: 30px;
+  }
+
+  .nav-links {
+    order: 2;
+    flex: 1;
+    justify-content: space-between;
+  }
+
+  .nav-link {
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+
+  .availability {
+    font-size: 11.5px;
+    padding: 5px 10px;
+  }
+
+  .nav-cmd__kbd {
+    display: none;
+  }
+
+  .nav-cmd {
+    padding: 0 11px;
+  }
+}
+
+/* Numa tela estreita o nome fica e o status encurta para "Disponível". */
+@media (max-width: 440px) {
+  .nav-brand {
+    gap: 8px;
+    font-size: 13.5px;
+  }
+
+  .brand-mark {
+    --mark: 28px;
+  }
+
+  .availability {
+    margin-left: 0;
+  }
+
+  .availability__more {
+    display: none;
+  }
+}
+
+/* Abaixo de 360px selo, nome, status e comandos não cabem numa linha —
+   o nome fica (regra acima) e o selo sai; o favicon segue com ele. */
+@media (max-width: 359px) {
+  .brand-mark {
+    display: none;
+  }
+}
+
+/* --- Timeline ----------------------------------------------------- */
+
+.timeline {
+  position: relative;
+}
+
+.spine {
+  position: absolute;
+  left: 6px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  pointer-events: none;
+}
+
+.spine__track {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--color-neutral-800) 60px,
+    var(--color-neutral-800) calc(100% - 60px),
+    transparent
+  );
+}
+
+.spine__fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 0;
+  background: linear-gradient(to bottom, var(--color-indigo), var(--color-violet) 60%, var(--color-orchid));
+  box-shadow: 0 0 12px 1px color-mix(in srgb, var(--color-accent) 60%, transparent);
+  will-change: height;
+}
+
+/* O cometa: a ponta acesa do preenchimento, marcando onde a leitura está. */
+.spine__fill::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: 50%;
+  background: var(--color-accent-100);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--color-accent) 30%, transparent),
+    0 0 20px 5px color-mix(in srgb, var(--color-orchid) 70%, transparent);
+}
+
+.section {
+  position: relative;
+  padding-left: clamp(0px, 7vw, 72px);
+  /* Compensa a nav flutuante MAIS os 20px que a seção sobe quando a
+     revelação tira o `translateY` — sem essa folga o título pousa correto e
+     depois desliza para trás da barra. */
+  scroll-margin-top: 100px;
+}
+
+@media (max-width: 780px) {
+  .section {
+    scroll-margin-top: 132px;
+  }
+}
+
+/* Cada seção ancora seu nó na altura da própria primeira linha de texto. */
+.section--hero {
+  --dot-top: clamp(62px, 10vh, 124px);
+}
+
+/* Seções de conteúdo: o respiro vem do `--section-pad`, e o nó da
+   timeline e o ponto de pouso das âncoras acompanham — a nav pousa o olho
+   no rótulo da seção, não num vão de 160px. */
+.section--gallery,
+.section--stack,
+.section--journey,
+.section--contact {
+  --dot-top: calc(var(--section-pad) + 3px);
+  scroll-margin-top: calc(132px - var(--section-pad));
+}
+
+@media (max-width: 780px) {
+  .section--gallery,
+  .section--stack,
+  .section--journey,
+  .section--contact {
+    scroll-margin-top: calc(164px - var(--section-pad));
+  }
+}
+
+.section__dot {
+  position: absolute;
+  left: 1px;
+  top: var(--dot-top, 60px);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  border: 2px solid var(--color-neutral-700);
+  transition:
+    border-color 0.4s,
+    background 0.4s,
+    box-shadow 0.4s;
+}
+
+.section.is-visible .section__dot {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  box-shadow: 0 0 16px 3px color-mix(in srgb, var(--color-accent) 55%, transparent);
+  animation: nodePulse 2.6s ease-in-out infinite;
+}
+
+.section__divider {
+  margin-left: clamp(0px, 7vw, 72px);
+}
+
+/* --- Revelação ---------------------------------------------------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.7s var(--ease-out-expo),
+    transform 0.7s var(--ease-out-expo);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* --- Animações ---------------------------------------------------- */
+
+@keyframes nodePulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 color-mix(in srgb, var(--color-accent) 55%, transparent),
+      0 0 14px 2px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 5px color-mix(in srgb, var(--color-accent) 0%, transparent),
+      0 0 22px 5px color-mix(in srgb, var(--color-accent) 55%, transparent);
+  }
+}
+
+@keyframes sheetIn {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sheetOut {
+  to {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .section.is-visible .section__dot,
+  .availability__dot::after {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

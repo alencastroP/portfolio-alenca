@@ -1,0 +1,580 @@
+/* ------------------------------------------------------------------ *
+ * Efeitos da identidade: palco do hero, marquee, feixe de borda,
+ * cursor, frase que acende no scroll, globo, rodapé e paleta ⌘K
+ * ------------------------------------------------------------------ */
+
+/* --- Palco do hero ------------------------------------------------- *
+ * Fica atrás de tudo, do topo da página até o fim da primeira dobra.
+ * Só CSS: pinta junto com a página, sem esperar JS nenhum.
+ * ------------------------------------------------------------------ */
+
+.hero-stage {
+  position: absolute;
+  inset: 0 0 auto;
+  height: max(100svh, 640px);
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Grade técnica, só perto da marca: a máscara radial apaga as bordas. */
+.hero-stage__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--color-accent-300) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-accent-300) 7%, transparent) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 60% 55% at 72% 42%, #000 10%, transparent 75%);
+  mask-image: radial-gradient(ellipse 60% 55% at 72% 42%, #000 10%, transparent 75%);
+}
+
+/* Feixes de luz vindos do canto: um cônico repetido, desfocado e mascarado. */
+.hero-stage__rays {
+  position: absolute;
+  inset: -20% -10% 25% 25%;
+  opacity: 0.5;
+  background: repeating-conic-gradient(
+    from 200deg at 85% 0%,
+    color-mix(in srgb, var(--color-accent-300) 10%, transparent) 0deg 4deg,
+    transparent 4deg 13deg
+  );
+  -webkit-mask-image: radial-gradient(ellipse 60% 70% at 85% 0%, #000, transparent 72%);
+  mask-image: radial-gradient(ellipse 60% 70% at 85% 0%, #000, transparent 72%);
+  filter: blur(10px);
+  transform-origin: 85% 0%;
+  animation: raysDrift 18s ease-in-out infinite alternate;
+}
+
+@keyframes raysDrift {
+  from {
+    transform: rotate(-3deg);
+  }
+  to {
+    transform: rotate(4deg);
+  }
+}
+
+/* O brilho atrás das capturas: luz ambiente, não holofote. */
+.hero-stage__glow {
+  position: absolute;
+  width: min(62vw, 900px);
+  aspect-ratio: 1;
+  right: -6vw;
+  top: 50%;
+  translate: 0 -55%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-violet) 30%, transparent),
+    color-mix(in srgb, var(--color-indigo) 12%, transparent) 55%,
+    transparent
+  );
+  filter: blur(30px);
+  opacity: 0.6;
+}
+
+.hero-stage__fade {
+  position: absolute;
+  inset: auto 0 0;
+  height: 28%;
+  background: linear-gradient(to bottom, transparent, var(--color-bg));
+}
+
+@media (max-width: 900px) {
+  .hero-stage__glow {
+    width: 120vw;
+    right: -40vw;
+    top: 26%;
+  }
+
+  .hero-stage__grid {
+    -webkit-mask-image: radial-gradient(ellipse 80% 45% at 60% 25%, #000 10%, transparent 75%);
+    mask-image: radial-gradient(ellipse 80% 45% at 60% 25%, #000 10%, transparent 75%);
+  }
+}
+
+/* --- Marquee de tecnologias ---------------------------------------- */
+
+/* Sem pílulas: ícone e nome soltos, com respiro largo entre eles — uma
+   faixa que se lê como textura, não como uma fileira de botões. */
+.marquee {
+  position: relative;
+  margin-left: clamp(0px, 7vw, 72px);
+  padding-block: clamp(24px, 3vw, 36px);
+  overflow: hidden;
+  border-block: 1px solid var(--color-divider);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+}
+
+.marquee__track {
+  display: flex;
+  width: max-content;
+  animation: marquee 52s linear infinite;
+}
+
+.marquee:hover .marquee__track {
+  animation-play-state: paused;
+}
+
+.marquee__group {
+  display: flex;
+  gap: clamp(28px, 3.4vw, 48px);
+  margin: 0;
+  padding: 0 clamp(28px, 3.4vw, 48px) 0 0;
+  list-style: none;
+}
+
+.marquee__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--color-neutral-400);
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.marquee__icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--color-neutral-500);
+  transition: color 0.3s;
+}
+
+/* No hover a marca aparece com a própria cor (quando ela é legível aqui). */
+.marquee__item:hover {
+  color: var(--color-text);
+}
+
+.marquee__item:hover .marquee__icon {
+  color: var(--brand, var(--color-accent-200));
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* --- Feixe de borda (card herói) ----------------------------------- *
+ * Um cônico com um arco curto e brilhante, girando por `@property`, e a
+ * mesma máscara de anel do card: só a borda de 1,5px aparece.
+ * ------------------------------------------------------------------ */
+
+.beam {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  padding: 1.5px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0deg 250deg,
+    var(--color-indigo) 290deg,
+    var(--color-orchid) 330deg,
+    var(--color-lilac) 352deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: beamSpin 7s linear infinite;
+}
+
+@keyframes beamSpin {
+  to {
+    --beam-angle: 360deg;
+  }
+}
+
+/* --- Cursor -------------------------------------------------------- */
+
+.cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 300;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  will-change: transform;
+}
+
+.cursor[data-visible='true'] {
+  opacity: 1;
+}
+
+.cursor__ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 34px;
+  height: 34px;
+  translate: -50% -50%;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-accent-300) 55%, transparent);
+  transition:
+    width 0.35s var(--ease-out-expo),
+    height 0.35s var(--ease-out-expo),
+    background 0.3s,
+    border-color 0.3s,
+    scale 0.2s;
+}
+
+.cursor[data-state='hover'] .cursor__ring {
+  width: 52px;
+  height: 52px;
+  border-color: color-mix(in srgb, var(--color-accent-200) 70%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.cursor[data-state='label'] .cursor__ring {
+  width: 0;
+  height: 0;
+  border-color: transparent;
+}
+
+.cursor[data-pressed='true'] .cursor__ring {
+  scale: 0.82;
+}
+
+/* Sobre um card, o anel vira uma pílula com a ação ("Abrir case"). */
+.cursor__label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% -50%;
+  padding: 9px 15px;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  color: #140d2b;
+  background: linear-gradient(180deg, var(--color-accent-200), var(--color-accent-400));
+  box-shadow: 0 10px 28px -8px color-mix(in srgb, var(--color-accent) 80%, transparent);
+  scale: 0;
+  opacity: 0;
+  transition:
+    scale 0.4s var(--ease-out-expo),
+    opacity 0.25s;
+}
+
+.cursor[data-state='label'] .cursor__label {
+  scale: 1;
+  opacity: 1;
+}
+
+/* --- Frase que acende no scroll ------------------------------------ *
+ * Uma expressão para todas as palavras: com `--reveal` indo de 0 a 1,
+ * a palavra `i` de `n` acende quando a leitura passa por ela.
+ * ------------------------------------------------------------------ */
+
+.scroll-words__word {
+  opacity: clamp(0.14, calc(var(--reveal, 0) * (var(--n) + 2) - var(--i) - 0.5), 1);
+  transition: opacity 0.12s linear;
+}
+
+.scroll-words__word.is-accent {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.08em;
+  letter-spacing: -0.01em;
+  color: var(--color-accent-300);
+}
+
+/* --- Globo --------------------------------------------------------- */
+
+.globe {
+  position: absolute;
+  inset: 0;
+}
+
+.globe__canvas {
+  width: 100%;
+  height: 100%;
+  contain: layout paint size;
+  opacity: 0;
+  cursor: grab;
+  touch-action: pan-y;
+  transition: opacity 1.2s var(--ease-out-expo);
+}
+
+.globe__canvas:active {
+  cursor: grabbing;
+}
+
+.globe.is-ready .globe__canvas {
+  opacity: 1;
+}
+
+/* --- Rodapé -------------------------------------------------------- */
+
+.footer {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  padding-top: clamp(40px, 6vw, 72px);
+  padding-bottom: 28px;
+  border-top: 1px solid var(--color-divider);
+}
+
+.footer__wordmark {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: clamp(38px, 8.6vw, 124px);
+  line-height: 0.92;
+  letter-spacing: -0.055em;
+  white-space: nowrap;
+  user-select: none;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-text) 88%, transparent) 15%,
+    color-mix(in srgb, var(--color-accent-700) 30%, transparent) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.footer__dot {
+  background: var(--grad-signature);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.footer__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 24px;
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-divider);
+  font-size: 12.5px;
+  color: var(--color-neutral-500);
+}
+
+.footer__built {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+.footer__top {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--color-neutral-300);
+  transition: color 0.25s;
+}
+
+.footer__top:hover {
+  color: var(--color-accent-200);
+}
+
+/* --- Paleta de comandos (cmdk) ------------------------------------- */
+
+.cmdk-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: color-mix(in srgb, var(--color-bg) 62%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fadeIn 0.2s ease;
+}
+
+.cmdk-dialog {
+  position: fixed;
+  z-index: 121;
+  top: min(16vh, 140px);
+  left: 50%;
+  translate: -50% 0;
+  width: min(640px, calc(100% - 28px));
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--color-neutral-600) 55%, transparent);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.04), transparent 40%),
+    color-mix(in srgb, var(--color-surface) 95%, transparent);
+  box-shadow: var(--shadow-lg);
+  animation: paletteIn 0.3s var(--ease-out-expo);
+}
+
+.cmdk-dialog:focus {
+  outline: none;
+}
+
+@keyframes paletteIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+}
+
+.cmdk-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-neutral-800);
+}
+
+.cmdk-head svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  color: var(--color-neutral-500);
+}
+
+.cmdk-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 15px;
+}
+
+.cmdk-input::placeholder {
+  color: var(--color-neutral-500);
+}
+
+.cmdk-list {
+  max-height: min(56vh, 420px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px;
+  scroll-padding-block: 8px;
+}
+
+.cmdk-list [cmdk-group-heading] {
+  padding: 10px 10px 6px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-neutral-500);
+}
+
+.cmdk-list [cmdk-item] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--color-neutral-200);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.cmdk-list [cmdk-item][data-selected='true'] {
+  background: color-mix(in srgb, var(--color-accent-900) 75%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent-700) 50%, transparent);
+  color: var(--color-accent-100);
+}
+
+.cmdk-item__icon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--color-neutral-800);
+  background: var(--color-neutral-900);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-accent-300);
+}
+
+.cmdk-item__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmdk-item__hint {
+  font-size: 12px;
+  color: var(--color-neutral-500);
+  white-space: nowrap;
+}
+
+.cmdk-empty {
+  padding: 28px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--color-neutral-500);
+}
+
+.cmdk-foot {
+  display: flex;
+  gap: 18px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--color-neutral-800);
+  font-size: 11.5px;
+  color: var(--color-neutral-500);
+}
+
+.cmdk-foot span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+@media (max-width: 560px) {
+  .cmdk-item__hint,
+  .cmdk-foot {
+    display: none;
+  }
+}
+
+/* --- Preferência por menos movimento ------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-stage__rays,
+  .beam {
+    animation: none;
+  }
+
+  /* Sem movimento, a faixa vira uma nuvem estática de etiquetas. */
+  .marquee {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .marquee__track {
+    width: auto;
+    animation: none;
+  }
+
+  .marquee__group {
+    flex-wrap: wrap;
+  }
+
+  .marquee__group[aria-hidden='true'] {
+    display: none;
+  }
+
+  .scroll-words__word {
+    opacity: 1;
+  }
+}
